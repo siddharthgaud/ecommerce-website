@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% load cart %}
+{% load custom_filters %}
+
+
+<div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+        {% for s in slider %}
+        <div class="carousel-item {% if forloop.first %} active {% endif %}">
+            <img src="{{s.image1.url}}" class="d-block w-100 carousel-image" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+                <h5 style=color:darkgreen>{{s.title}}</h5>
+                <p style=color:darkgreen;font-weight:bold;>{{s.description}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
+
+<style>
+.carousel-image {
+    height: 600px; /* or any height you want */
+    object-fit: cover;
+}
+
+
+</style>
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="list-group">
+                <a href="/" class="list-group-item list-group-item-action active category-item ">
+                    All Products
+                </a>
+                {% for category in categories%}
+                <a href="/?category={{category.id}}" class="list-group-item list-group-item-action category-item">{{category.name}}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="row">
+                {% for i in products %}
+                <div class="col-sm-4 mb-3">
+                    <div class="card grow-on-hover" id="{{i.id}}" style="width: 18rem;">
+                        <img src="{{ i.image.url }}" class="card-img-top" alt="{{ i.name }}" height="300" width="300">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ i.name }}</h5>
+                            <p class="card-text">{{ i.description }}</p>
+                            <p class="card-text">{{ i.price|currency }}</p>
+
+
+                        </div>
+                        <div class="card-footer p-0 no-gutters">
+                            {% if i|is_in_cart:request.session.cart %}
+                            <div class="row no-gutters">
+                                <form action="/#{{i.id}}" class="col-2" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" hidden name="product" value="{{i.id}}">
+                                    <input type="text" hidden name="remove" value="True">
+                                    <input type="submit" value="-" class="btn btn-block btn-secondary">
+                                </form>
+                                <div class="text-center col">{{i|cart_quantity:request.session.cart}} in cart</div>
+                                <form action="/#{{i.id}}" class="col-2" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" hidden name="product" value="{{i.id}}">
+                                    <input type="submit" value="+" class="btn btn-block btn-secondary">
+                                </form>
+                            </div>
+                            {% else %}
+                            <form action="/#{{i.id}}" method="POST" class="btn-block">
+                                {% csrf_token %}
+                                <input type="text" hidden name="product" value="{{i.id}}">
+                                <input type="submit" class="float-right btn form-control"
+                                    value="Add to cart" style="background-color:red;color:white;">
+                            </form>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock%}
